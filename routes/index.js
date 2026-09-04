@@ -59,6 +59,7 @@ function fetchTodos(req, res, next) {
         id: row.id,
         title: row.title,
         completed: row.completed == 1 ? true : false,
+        priority: row.priority == 1 ? true : false,
         url: '/' + row.id
       }
     });
@@ -129,6 +130,15 @@ router.post('/:id(\\d+)/undo', function(req, res, next) {
   db.run('UPDATE todos SET deleted_at = NULL WHERE id = ? AND deleted_at > ?', [
     req.params.id,
     Date.now() - UNDO_WINDOW_MS
+  ], function(err) {
+    if (err) { return next(err); }
+    return res.redirect('/' + (req.body.filter || ''));
+  });
+});
+
+router.post('/:id(\\d+)/priority', function(req, res, next) {
+  db.run('UPDATE todos SET priority = CASE WHEN priority = 1 THEN NULL ELSE 1 END WHERE id = ? AND deleted_at IS NULL', [
+    req.params.id
   ], function(err) {
     if (err) { return next(err); }
     return res.redirect('/' + (req.body.filter || ''));

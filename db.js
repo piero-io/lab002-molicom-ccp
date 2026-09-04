@@ -10,7 +10,8 @@ db.serialize(function() {
     id INTEGER PRIMARY KEY, \
     title TEXT NOT NULL, \
     completed INTEGER, \
-    deleted_at INTEGER \
+    deleted_at INTEGER, \
+    priority INTEGER \
   )");
 
   // Las bases que ya existían antes de «deshacer el borrado» no tienen la
@@ -25,6 +26,10 @@ db.serialize(function() {
       db.run("ALTER TABLE todos ADD COLUMN deleted_at INTEGER");
     }
   });
+
+  // Bases creadas antes de que existiera `priority` no la tienen: el error de
+  // columna duplicada es el caso normal en bases nuevas y se ignora.
+  db.run("ALTER TABLE todos ADD COLUMN priority INTEGER", function(err) {});
 });
 
 module.exports = db;

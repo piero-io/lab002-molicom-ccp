@@ -422,3 +422,53 @@ html .undo-button:active {
 	box-shadow: 0 0 2px 2px #CF7D7D;
 	outline: 0;
 }
+
+.todo-list li .priority-toggle {
+	position: absolute;
+	top: 0;
+	right: 50px;
+	bottom: 0;
+	width: 40px;
+	height: 40px;
+	margin: auto 0;
+	font-size: 26px;
+	line-height: 1;
+	color: #cfcfcf;
+	cursor: pointer;
+	transition: color 0.2s ease-out;
+}
+
+.todo-list li .priority-toggle:after {
+	content: '☆';
+	display: block;
+	height: 100%;
+	line-height: 1.4;
+}
+
+.todo-list li .priority-toggle:hover,
+.todo-list li .priority-toggle:focus {
+	color: #f0b429;
+}
+
+.todo-list li.priority .priority-toggle {
+	color: #f0b429;
+}
+
+.todo-list li.priority .priority-toggle:after {
+	content: '★';
+}
+
+.todo-list li.priority {
+	background: #fffdf3;
+	box-shadow: inset 4px 0 0 #f0b429;
+}
+
+.todo-list li.priority label {
+	font-weight: 400;
+	color: #2f2f2f;
+}
+
+/* Deja sitio a la estrella (right: 50px) y a la equis (right: 10px). */
+.todo-list li label {
+	padding-right: 100px;
+}
