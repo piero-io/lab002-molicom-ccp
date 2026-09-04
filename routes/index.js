@@ -137,7 +137,7 @@ router.post('/:id(\\d+)/undo', function(req, res, next) {
 });
 
 router.post('/:id(\\d+)/priority', function(req, res, next) {
-  db.run('UPDATE todos SET priority = CASE WHEN priority = 1 THEN NULL ELSE 1 END WHERE id = ?', [
+  db.run('UPDATE todos SET priority = CASE WHEN priority = 1 THEN NULL ELSE 1 END WHERE id = ? AND deleted_at IS NULL', [
     req.params.id
   ], function(err) {
     if (err) { return next(err); }
