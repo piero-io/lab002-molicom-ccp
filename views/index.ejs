@@ -6,15 +6,26 @@
 		<title>Express • TodoMVC</title>
 		<link rel="stylesheet" href="/css/base.css">
 		<link rel="stylesheet" href="/css/index.css">
+		<link rel="stylesheet" href="/css/search.css">
 	</head>
 	<body>
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
+				<form class="search" action="/<%= filter || '' %>" method="get">
+					<input class="search-input" name="q" value="<%= search %>" placeholder="Search todos" aria-label="Search todos">
+					<button class="search-submit" type="submit" aria-label="Search">🔍</button>
+					<% if (search) { %>
+					<a class="search-clear" href="/<%= filter || '' %>" aria-label="Clear search">✕</a>
+					<% } %>
+				</form>
 				<form action="/" method="post">
 					<input class="new-todo" name="title" placeholder="What needs to be done?" autofocus>
 					<% if (filter) { %>
 					<input type="hidden" name="filter" value="<%= filter %>"/>
+					<% } %>
+					<% if (search) { %>
+					<input type="hidden" name="q" value="<%= search %>"/>
 					<% } %>
 				</form>
 			</header>
@@ -26,6 +37,9 @@
 					<% if (filter) { %>
 					<input type="hidden" name="filter" value="<%= filter %>"/>
 					<% } %>
+					<% if (search) { %>
+					<input type="hidden" name="q" value="<%= search %>"/>
+					<% } %>
 				</form>
 				<ul class="todo-list">
 					<% todos.forEach(function(todo) { %>
@@ -33,21 +47,30 @@
 						<form action="<%= todo.url %>" method="post">
 							<div class="view">
 								<input class="toggle" type="checkbox" name="completed" <%- todo.completed ? 'checked' : '' %> onchange="this.form.submit();">
-								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%= todo.title %></label>
+								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%- highlight(todo.title, search) %></label>
 								<button class="destroy" form="delete-<%= todo.id %>"></button>
 							</div>
 							<input class="edit" name="title" value="<%= todo.title %>" onkeyup="if (event.keyCode == 27) { this.setAttribute('data-esc', ''); this.closest('li').className = this.closest('li').className.replace('editing', ''); }" onblur="if (this.getAttribute('data-esc') !== null) { return this.removeAttribute('data-esc'); } this.form.submit();">
 							<% if (filter) { %>
 							<input type="hidden" name="filter" value="<%= filter %>"/>
 							<% } %>
+							<% if (search) { %>
+							<input type="hidden" name="q" value="<%= search %>"/>
+							<% } %>
 						</form>
 						<form id="delete-<%= todo.id %>" action="<%= todo.url %>/delete" method="post">
 							<% if (filter) { %>
 							<input type="hidden" name="filter" value="<%= filter %>"/>
 							<% } %>
+							<% if (search) { %>
+							<input type="hidden" name="q" value="<%= search %>"/>
+							<% } %>
 						</form>
 					</li>
 					<% }); %>
+					<% if (search && todos.length == 0) { %>
+					<li class="no-results">No todos match “<%= search %>”</li>
+					<% } %>
 				</ul>
 			</section>
 			<% } %>
@@ -56,13 +79,13 @@
 				<span class="todo-count"><strong><%= activeCount %></strong> <%= pluralize('item', activeCount) %> left</span>
 				<ul class="filters">
 					<li>
-						<a <%- !filter ? 'class="selected"' : '' %> href="/">All</a>
+						<a <%- !filter ? 'class="selected"' : '' %> href="/<%= searchQuery %>">All</a>
 					</li>
 					<li>
-						<a <%- filter == 'active' ? 'class="selected"' : '' %> href="/active">Active</a>
+						<a <%- filter == 'active' ? 'class="selected"' : '' %> href="/active<%= searchQuery %>">Active</a>
 					</li>
 					<li>
-						<a <%- filter == 'completed' ? 'class="selected"' : '' %> href="/completed">Completed</a>
+						<a <%- filter == 'completed' ? 'class="selected"' : '' %> href="/completed<%= searchQuery %>">Completed</a>
 					</li>
 				</ul>
 				<% if (completedCount > 0) { %>
@@ -70,6 +93,9 @@
 					<button class="clear-completed">Clear completed</button>
 					<% if (filter) { %>
 					<input type="hidden" name="filter" value="<%= filter %>"/>
+					<% } %>
+					<% if (search) { %>
+					<input type="hidden" name="q" value="<%= search %>"/>
 					<% } %>
 				</form>
 				<% } %>
