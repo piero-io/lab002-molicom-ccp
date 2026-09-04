@@ -82,6 +82,36 @@
 			</footer>
 			<% } %>
 		</section>
+		<% if (undo) { %>
+		<div class="undo" id="undo">
+			<span class="undo-text">Se borró «<%= undo.title %>»</span>
+			<form action="<%= undo.url %>" method="post">
+				<% if (filter) { %>
+				<input type="hidden" name="filter" value="<%= filter %>"/>
+				<% } %>
+				<button class="undo-button">Deshacer</button>
+			</form>
+			<span class="undo-countdown" id="undo-countdown"><%= undo.secondsLeft %></span>
+		</div>
+		<script>
+			(function() {
+				var secondsLeft = <%= undo.secondsLeft %>;
+				var countdown = document.getElementById('undo-countdown');
+				var banner = document.getElementById('undo');
+
+				var tick = setInterval(function() {
+					secondsLeft = secondsLeft - 1;
+					if (secondsLeft > 0) {
+						countdown.textContent = secondsLeft;
+						return;
+					}
+					// Venció el plazo: el servidor ya no aceptará el «Deshacer».
+					clearInterval(tick);
+					banner.className = banner.className + ' hidden';
+				}, 1000);
+			})();
+		</script>
+		<% } %>
 		<footer class="info">
 			<p>Double-click to edit a todo</p>
 			<p>Created by <a href="https://www.jaredhanson.me">Jared Hanson</a></p>

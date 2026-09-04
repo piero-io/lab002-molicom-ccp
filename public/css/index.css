@@ -336,6 +336,39 @@ html .clear-completed:active {
 	text-decoration: underline;
 }
 
+.undo {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 15px;
+	padding: 12px 16px;
+	background: #fff;
+	color: #4d4d4d;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.undo-text {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.undo-button,
+html .undo-button:active {
+	color: #b83f45;
+	font-weight: 400;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.undo-countdown {
+	min-width: 18px;
+	color: #949494;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
 .info {
 	margin: 65px auto 0;
 	color: #4d4d4d;
