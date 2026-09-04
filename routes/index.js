@@ -11,6 +11,7 @@ function fetchTodos(req, res, next) {
         id: row.id,
         title: row.title,
         completed: row.completed == 1 ? true : false,
+        priority: row.priority == 1 ? true : false,
         url: '/' + row.id
       }
     });
@@ -79,6 +80,15 @@ router.post('/:id(\\d+)', function(req, res, next) {
 
 router.post('/:id(\\d+)/delete', function(req, res, next) {
   db.run('DELETE FROM todos WHERE id = ?', [
+    req.params.id
+  ], function(err) {
+    if (err) { return next(err); }
+    return res.redirect('/' + (req.body.filter || ''));
+  });
+});
+
+router.post('/:id(\\d+)/priority', function(req, res, next) {
+  db.run('UPDATE todos SET priority = CASE WHEN priority = 1 THEN NULL ELSE 1 END WHERE id = ?', [
     req.params.id
   ], function(err) {
     if (err) { return next(err); }
