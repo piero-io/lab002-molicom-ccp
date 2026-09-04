@@ -1,2 +1,11 @@
 node_modules
 var
+
+# secretos y entorno
+.env
+.env.*
+*.pem
+
+# basura del sistema
+.DS_Store
+Thumbs.db

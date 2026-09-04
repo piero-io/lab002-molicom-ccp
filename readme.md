@@ -1,59 +1,60 @@
-# Express • [TodoMVC](http://todomvc.com)
+# lab002 · Molicom · Claude Code Professional
 
-> Express is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.
+Repositorio de laboratorio de la **Sesión 2** del programa Claude Code Professional.
 
-&ndash; _[Express](https://expressjs.com/)_
+Es una lista de tareas ([TodoMVC](http://todomvc.com)) hecha con **Express + SQLite + EJS**:
+crear, editar con doble clic, completar, filtrar y borrar. Sin framework de front, sin
+proceso de compilación.
 
-## Resources
-
-- [Website](https://expressjs.com/)
-- [API Reference](https://expressjs.com/en/4x/api.html)
-
-### Support
-
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/express)
-- [Google Groups](https://groups.google.com/g/express-js)
-
-*Let us [know](https://github.com/jaredhanson/todos-express-sqlite/issues) if you discover anything worth sharing.*
-
-
-## Implementation
-
-In contrast to a typical [TodoMVC](https://todomvc.com) app, this app does not
-utilize a frontend JavaScript framework or make use of client-side capabilities
-such as `localStorage`.  Instead, it illustrates how to build a todo app using
-a backend for application logic and persistence, along with HTML forms for
-interaction.
-
-This app is built using [Node.js](https://nodejs.org/) along with the [Express](https://expressjs.com/)
-web framework.  Data is persisted to a [SQLite](https://www.sqlite.org/)
-database.  HTML pages are rendered using [EJS](https://ejs.co/) templates, and
-are styled using vanilla CSS.  HTML forms are used to modify data, rather than a
-RESTful API.  That being said, the forms serialize data in a format inspired by
-[Todo-Backend](https://todobackend.com/).
-
-To run this app, clone the repository and install dependencies:
+## Cómo levantarlo
 
 ```bash
-$ git clone https://github.com/jaredhanson/todos-express-sqlite.git
-$ cd todos-express-sqlite
-$ npm install
+npm install
+npm start
 ```
 
-Then start the server:
+Abre <http://localhost:3000>. La base de datos SQLite se crea sola en `var/db/todos.db`
+la primera vez que arranca.
+
+> **No hagas commit de `var/`.** Ya está en el `.gitignore`: es un binario que cambia con
+> cada clic y haría chocar a todo el equipo en cada push.
+
+## Estructura
 
 ```
-$ npm start
+├── app.js            # Express y middleware
+├── db.js             # SQLite: crea la tabla todos
+├── routes/index.js   # todas las rutas
+├── views/index.ejs   # la vista completa
+├── public/css/       # estilos
+└── bin/www           # arranque del servidor
 ```
 
-Navigate to [`http://localhost:3000`](http://localhost:3000).
+## La dinámica de la sesión
 
-The scaffolding for this app was generated using [Express application generator](https://expressjs.com/en/starter/generator.html):
+Cinco participantes trabajan **en paralelo sobre este mismo repositorio**, cada uno en su
+rama, pidiéndole todo a Claude Code en lenguaje natural. La rama `main` está protegida:
+solo se entra por pull request y con una aprobación.
 
-```bash
-$ express -v ejs todos-express-sqlite
-```
+| Participante | Funcionalidad | Rama |
+|---|---|---|
+| 1 | Fecha de creación y orden por más reciente | `feat/p1-fecha-creacion` |
+| 2 | Prioridad con estrella clicable | `feat/p2-prioridad` |
+| 3 | Buscador por texto | `feat/p3-buscador` |
+| 4 | Modo oscuro con persistencia | `feat/p4-modo-oscuro` |
+| 5 | Deshacer el borrado | `feat/p5-deshacer-borrado` |
 
-## Credit
+Los participantes 1, 2 y 5 tocan `db.js`; los participantes 3 y 4 tocan el encabezado de
+`views/index.ejs`. **Los conflictos van a aparecer, y eso es parte del ejercicio.**
 
-Created by [Jared Hanson](https://www.jaredhanson.me/)
+Las instrucciones completas están en la guía de la sesión.
+
+## Origen del código
+
+El código base es **[todos-express-sqlite](https://github.com/jaredhanson/todos-express-sqlite)**
+de [Jared Hanson](https://www.jaredhanson.me), parte de [TodoMVC](http://todomvc.com).
+Este repositorio conserva el historial de commits original; los cambios propios del
+laboratorio se agregan a partir de ahí.
+
+El proyecto original no declara licencia. Este repositorio existe únicamente con fines
+educativos, sin uso comercial y manteniendo la atribución a su autor.
