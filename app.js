@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var app = express();
 
 app.locals.pluralize = require('pluralize');
+app.locals.highlight = require('./highlight');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
