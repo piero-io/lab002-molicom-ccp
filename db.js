@@ -11,6 +11,22 @@ db.serialize(function() {
     title TEXT NOT NULL, \
     completed INTEGER \
   )");
+
+  db.all("PRAGMA table_info(todos)", [], function(err, columns) {
+    if (err) { throw err; }
+
+    var hasCreatedAt = columns.some(function(column) {
+      return column.name === 'created_at';
+    });
+
+    if (hasCreatedAt) { return; }
+
+    db.run("ALTER TABLE todos ADD COLUMN created_at TEXT", function(err) {
+      if (err) { throw err; }
+
+      db.run("UPDATE todos SET created_at = datetime('now') WHERE created_at IS NULL");
+    });
+  });
 });
 
 module.exports = db;

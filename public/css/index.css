@@ -223,6 +223,13 @@ body {
 	text-decoration: line-through;
 }
 
+.todo-list li .todo-created {
+	display: block;
+	margin: -8px 15px 8px 60px;
+	font-size: 11px;
+	color: #a6a6a6;
+}
+
 .todo-list li .destroy {
 	display: none;
 	position: absolute;
