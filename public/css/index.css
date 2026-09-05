@@ -223,6 +223,34 @@ body {
 	text-decoration: line-through;
 }
 
+.todo-list li.pending-delete {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 15px;
+	background: #fdf6f6;
+	color: #949494;
+}
+
+.todo-list li.pending-delete .pending-delete-message {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.todo-list li.pending-delete .pending-delete-undo button {
+	color: #b83f45;
+	text-decoration: underline;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.todo-list li.pending-delete .pending-delete-countdown {
+	margin-left: 10px;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
 .todo-list li .destroy {
 	display: none;
 	position: absolute;

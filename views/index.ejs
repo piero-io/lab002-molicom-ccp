@@ -18,7 +18,7 @@
 					<% } %>
 				</form>
 			</header>
-			<% if (activeCount + completedCount > 0) { %>
+			<% if (todos.length > 0) { %>
 			<section class="main">
 				<form action="/toggle-all" method="post">
 					<input id="toggle-all" class="toggle-all" type="checkbox" name="completed" <%- activeCount == 0 ? 'checked' : '' %> onchange="this.form.submit();">
@@ -29,6 +29,18 @@
 				</form>
 				<ul class="todo-list">
 					<% todos.forEach(function(todo) { %>
+					<% if (todo.pendingDelete) { %>
+					<li class="pending-delete" data-remaining-ms="<%= todo.remainingMs %>">
+						<span class="pending-delete-message">&quot;<%= todo.title %>&quot; se eliminó.</span>
+						<form class="pending-delete-undo" action="<%= todo.url %>/undo" method="post">
+							<% if (filter) { %>
+							<input type="hidden" name="filter" value="<%= filter %>"/>
+							<% } %>
+							<button type="submit">Deshacer</button>
+						</form>
+						<span class="pending-delete-countdown"></span>
+					</li>
+					<% } else { %>
 					<li <%- todo.completed ? 'class="completed"' : '' %>>
 						<form action="<%= todo.url %>" method="post">
 							<div class="view">
@@ -47,6 +59,7 @@
 							<% } %>
 						</form>
 					</li>
+					<% } %>
 					<% }); %>
 				</ul>
 			</section>
@@ -81,5 +94,22 @@
 			<p>Created by <a href="https://www.jaredhanson.me">Jared Hanson</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
+		<script>
+			document.querySelectorAll('.pending-delete').forEach(function(li) {
+				var countdown = li.querySelector('.pending-delete-countdown');
+				var remainingMs = Number(li.getAttribute('data-remaining-ms'));
+				var deadline = Date.now() + remainingMs;
+				var tick = function() {
+					var secondsLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+					countdown.textContent = secondsLeft + 's';
+					if (deadline - Date.now() <= 0) {
+						clearInterval(interval);
+						window.location = window.location.pathname;
+					}
+				};
+				var interval = setInterval(tick, 250);
+				tick();
+			});
+		</script>
 	</body>
 </html>
