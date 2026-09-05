@@ -4,10 +4,20 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Express • TodoMVC</title>
+		<script>
+			(function() {
+				try {
+					if (localStorage.getItem('theme') === 'dark') {
+						document.documentElement.setAttribute('data-theme', 'dark');
+					}
+				} catch (e) {}
+			})();
+		</script>
 		<link rel="stylesheet" href="/css/base.css">
 		<link rel="stylesheet" href="/css/index.css">
 	</head>
 	<body>
+		<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambiar a modo oscuro" aria-pressed="false">🌙</button>
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
@@ -81,5 +91,33 @@
 			<p>Created by <a href="https://www.jaredhanson.me">Jared Hanson</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
+		<script>
+			(function() {
+				var toggle = document.getElementById('theme-toggle');
+				var root = document.documentElement;
+
+				function isDark() {
+					return root.getAttribute('data-theme') === 'dark';
+				}
+
+				function updateLabel() {
+					toggle.textContent = isDark() ? '☀️' : '🌙';
+					toggle.setAttribute('aria-pressed', isDark() ? 'true' : 'false');
+				}
+
+				toggle.addEventListener('click', function() {
+					if (isDark()) {
+						root.removeAttribute('data-theme');
+						try { localStorage.setItem('theme', 'light'); } catch (e) {}
+					} else {
+						root.setAttribute('data-theme', 'dark');
+						try { localStorage.setItem('theme', 'dark'); } catch (e) {}
+					}
+					updateLabel();
+				});
+
+				updateLabel();
+			})();
+		</script>
 	</body>
 </html>
