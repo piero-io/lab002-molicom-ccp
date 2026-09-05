@@ -11,6 +11,11 @@ db.serialize(function() {
     title TEXT NOT NULL, \
     completed INTEGER \
   )");
+  db.run("ALTER TABLE todos ADD COLUMN priority INTEGER DEFAULT 0", function(err) {
+    if (err && !/duplicate column name/i.test(err.message)) {
+      throw err;
+    }
+  });
 });
 
 module.exports = db;
