@@ -61,7 +61,7 @@ function softDelete(req, res, next) {
     req.params.id
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || '') + '?undo=' + req.params.id);
+    return res.redirect(listUrl(req, 'undo=' + req.params.id));
   });
 }
 
@@ -88,19 +88,50 @@ function fetchTodos(req, res, next) {
   });
 }
 
+function searchTodos(req, res, next) {
+  var search = (req.query.q || '').trim();
+
+  res.locals.search = search;
+  res.locals.searchQuery = search ? '?q=' + encodeURIComponent(search) : '';
+
+  if (search) {
+    var needle = search.toLowerCase();
+    res.locals.todos = res.locals.todos.filter(function(todo) {
+      return todo.title.toLowerCase().indexOf(needle) !== -1;
+    });
+  }
+  next();
+}
+
+/* Arma la URL de la lista conservando el filtro y la búsqueda activos.
+   `extra` es para los redirects que además llevan lo suyo, como ?undo=<id>. */
+function listUrl(req, extra) {
+  var params = [];
+  var search = (req.body.q || '').trim();
+
+  if (search) { params.push('q=' + encodeURIComponent(search)); }
+  if (extra) { params.push(extra); }
+
+  return '/' + (req.body.filter || '') + (params.length ? '?' + params.join('&') : '');
+}
+
+function redirectToList(req, res) {
+  return res.redirect(listUrl(req));
+}
+
 /* GET home page. */
-router.get('/', purgeExpired, fetchTodos, fetchPendingUndo, function(req, res, next) {
+router.get('/', purgeExpired, fetchTodos, searchTodos, fetchPendingUndo, function(req, res, next) {
   res.locals.filter = null;
   res.render('index');
 });
 
-router.get('/active', purgeExpired, fetchTodos, fetchPendingUndo, function(req, res, next) {
+router.get('/active', purgeExpired, fetchTodos, searchTodos, fetchPendingUndo, function(req, res, next) {
   res.locals.todos = res.locals.todos.filter(function(todo) { return !todo.completed; });
   res.locals.filter = 'active';
   res.render('index');
 });
 
-router.get('/completed', purgeExpired, fetchTodos, fetchPendingUndo, function(req, res, next) {
+router.get('/completed', purgeExpired, fetchTodos, searchTodos, fetchPendingUndo, function(req, res, next) {
   res.locals.todos = res.locals.todos.filter(function(todo) { return todo.completed; });
   res.locals.filter = 'completed';
   res.render('index');
@@ -111,7 +142,7 @@ router.post('/', function(req, res, next) {
   next();
 }, function(req, res, next) {
   if (req.body.title !== '') { return next(); }
-  return res.redirect('/' + (req.body.filter || ''));
+  return redirectToList(req, res);
 }, function(req, res, next) {
   db.run('INSERT INTO todos (title, completed, created_at) VALUES (?, ?, ?)', [
     req.body.title,
@@ -119,7 +150,7 @@ router.post('/', function(req, res, next) {
     new Date().toISOString()
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || ''));
+    return redirectToList(req, res);
   });
 });
 
@@ -136,7 +167,7 @@ router.post('/:id(\\d+)', function(req, res, next) {
     req.params.id
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || ''));
+    return redirectToList(req, res);
   });
 });
 
@@ -151,7 +182,7 @@ router.post('/:id(\\d+)/undo', function(req, res, next) {
     Date.now() - UNDO_WINDOW_MS
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || ''));
+    return redirectToList(req, res);
   });
 });
 
@@ -160,7 +191,7 @@ router.post('/:id(\\d+)/priority', function(req, res, next) {
     req.params.id
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || ''));
+    return redirectToList(req, res);
   });
 });
 
@@ -169,7 +200,7 @@ router.post('/toggle-all', function(req, res, next) {
     req.body.completed !== undefined ? 1 : null
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || ''));
+    return redirectToList(req, res);
   });
 });
 
@@ -178,7 +209,7 @@ router.post('/clear-completed', function(req, res, next) {
     1
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || ''));
+    return redirectToList(req, res);
   });
 });
 
