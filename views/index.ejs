@@ -2,6 +2,13 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
+		<script>
+			(function () {
+				var stored = localStorage.getItem('theme');
+				var theme = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+				document.documentElement.setAttribute('data-theme', theme);
+			})();
+		</script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Express • TodoMVC</title>
 		<link rel="stylesheet" href="/css/base.css">
@@ -12,6 +19,7 @@
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
+				<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambiar modo oscuro"></button>
 				<form class="search" action="/<%= filter || '' %>" method="get">
 					<input class="search-input" name="q" value="<%= search %>" placeholder="Search todos" aria-label="Search todos">
 					<button class="search-submit" type="submit" aria-label="Search">🔍</button>
@@ -149,5 +157,22 @@
 			<p>Created by <a href="https://www.jaredhanson.me">Jared Hanson</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
+		<script>
+			(function () {
+				var btn = document.getElementById('theme-toggle');
+				function sync() {
+					var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+					btn.setAttribute('aria-pressed', isDark);
+					btn.textContent = isDark ? '☀️' : '🌙';
+				}
+				btn.addEventListener('click', function () {
+					var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+					document.documentElement.setAttribute('data-theme', next);
+					localStorage.setItem('theme', next);
+					sync();
+				});
+				sync();
+			})();
+		</script>
 	</body>
 </html>
