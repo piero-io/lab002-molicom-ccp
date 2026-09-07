@@ -2,6 +2,21 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db');
 
+function timeAgo(isoDate) {
+  if (!isoDate) { return null; }
+
+  var seconds = Math.floor((Date.now() - new Date(isoDate).getTime()) / 1000);
+  if (seconds < 60) { return 'hace unos segundos'; }
+
+  var minutes = Math.floor(seconds / 60);
+  if (minutes < 60) { return 'hace ' + minutes + ' min'; }
+
+  var hours = Math.floor(minutes / 60);
+  if (hours < 24) { return 'hace ' + hours + ' h'; }
+
+  return 'hace ' + Math.floor(hours / 24) + ' d';
+}
+
 // Cuánto tiempo se puede deshacer un borrado antes de que la fila desaparezca.
 var UNDO_WINDOW_MS = 10000;
 
@@ -51,15 +66,18 @@ function softDelete(req, res, next) {
 }
 
 function fetchTodos(req, res, next) {
-  db.all('SELECT * FROM todos WHERE deleted_at IS NULL', [], function(err, rows) {
+  // created_at es NULL en las tareas anteriores a esta columna: en DESC, SQLite
+  // ordena los NULL al final, así que quedan debajo de las nuevas.
+  db.all('SELECT * FROM todos WHERE deleted_at IS NULL ORDER BY created_at DESC, id DESC', [], function(err, rows) {
     if (err) { return next(err); }
-    
+
     var todos = rows.map(function(row) {
       return {
         id: row.id,
         title: row.title,
         completed: row.completed == 1 ? true : false,
         priority: row.priority == 1 ? true : false,
+        createdAgo: timeAgo(row.created_at),
         url: '/' + row.id
       }
     });
@@ -95,9 +113,10 @@ router.post('/', function(req, res, next) {
   if (req.body.title !== '') { return next(); }
   return res.redirect('/' + (req.body.filter || ''));
 }, function(req, res, next) {
-  db.run('INSERT INTO todos (title, completed) VALUES (?, ?)', [
+  db.run('INSERT INTO todos (title, completed, created_at) VALUES (?, ?, ?)', [
     req.body.title,
-    req.body.completed == true ? 1 : null
+    req.body.completed == true ? 1 : null,
+    new Date().toISOString()
   ], function(err) {
     if (err) { return next(err); }
     return res.redirect('/' + (req.body.filter || ''));

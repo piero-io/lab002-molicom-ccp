@@ -223,6 +223,18 @@ body {
 	text-decoration: line-through;
 }
 
+/* inline-block al 100% para caer en su propia línea y, por ser inline atómico,
+   no heredar el line-through de las tareas completadas */
+.todo-list li label .created-at {
+	display: inline-block;
+	width: 100%;
+	margin-top: 6px;
+	font-size: 12px;
+	font-weight: 300;
+	color: #949494;
+	text-decoration: none;
+}
+
 .todo-list li .destroy {
 	display: none;
 	position: absolute;

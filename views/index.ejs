@@ -33,7 +33,7 @@
 						<form action="<%= todo.url %>" method="post">
 							<div class="view">
 								<input class="toggle" type="checkbox" name="completed" <%- todo.completed ? 'checked' : '' %> onchange="this.form.submit();">
-								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%= todo.title %></label>
+								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%= todo.title %><% if (todo.createdAgo) { %><span class="created-at"><%= todo.createdAgo %></span><% } %></label>
 								<button class="priority-toggle" form="priority-<%= todo.id %>" aria-label="<%= todo.priority ? 'Quitar prioridad' : 'Marcar como prioritaria' %>"></button>
 								<button class="destroy" form="delete-<%= todo.id %>"></button>
 							</div>
