@@ -13,16 +13,27 @@
 		<title>Express • TodoMVC</title>
 		<link rel="stylesheet" href="/css/base.css">
 		<link rel="stylesheet" href="/css/index.css">
+		<link rel="stylesheet" href="/css/search.css">
 	</head>
 	<body>
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
 				<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambiar modo oscuro"></button>
+				<form class="search" action="/<%= filter || '' %>" method="get">
+					<input class="search-input" name="q" value="<%= search %>" placeholder="Search todos" aria-label="Search todos">
+					<button class="search-submit" type="submit" aria-label="Search">🔍</button>
+					<% if (search) { %>
+					<a class="search-clear" href="/<%= filter || '' %>" aria-label="Clear search">✕</a>
+					<% } %>
+				</form>
 				<form action="/" method="post">
 					<input class="new-todo" name="title" placeholder="What needs to be done?" autofocus>
 					<% if (filter) { %>
 					<input type="hidden" name="filter" value="<%= filter %>"/>
+					<% } %>
+					<% if (search) { %>
+					<input type="hidden" name="q" value="<%= search %>"/>
 					<% } %>
 				</form>
 			</header>
@@ -34,28 +45,49 @@
 					<% if (filter) { %>
 					<input type="hidden" name="filter" value="<%= filter %>"/>
 					<% } %>
+					<% if (search) { %>
+					<input type="hidden" name="q" value="<%= search %>"/>
+					<% } %>
 				</form>
 				<ul class="todo-list">
 					<% todos.forEach(function(todo) { %>
-					<li <%- todo.completed ? 'class="completed"' : '' %>>
+					<li class="<%= todo.completed ? 'completed' : '' %> <%= todo.priority ? 'priority' : '' %>">
 						<form action="<%= todo.url %>" method="post">
 							<div class="view">
 								<input class="toggle" type="checkbox" name="completed" <%- todo.completed ? 'checked' : '' %> onchange="this.form.submit();">
-								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%= todo.title %></label>
+								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%- highlight(todo.title, search) %><% if (todo.createdAgo) { %><span class="created-at"><%= todo.createdAgo %></span><% } %></label>
+								<button class="priority-toggle" form="priority-<%= todo.id %>" aria-label="<%= todo.priority ? 'Quitar prioridad' : 'Marcar como prioritaria' %>"></button>
 								<button class="destroy" form="delete-<%= todo.id %>"></button>
 							</div>
 							<input class="edit" name="title" value="<%= todo.title %>" onkeyup="if (event.keyCode == 27) { this.setAttribute('data-esc', ''); this.closest('li').className = this.closest('li').className.replace('editing', ''); }" onblur="if (this.getAttribute('data-esc') !== null) { return this.removeAttribute('data-esc'); } this.form.submit();">
 							<% if (filter) { %>
 							<input type="hidden" name="filter" value="<%= filter %>"/>
 							<% } %>
+							<% if (search) { %>
+							<input type="hidden" name="q" value="<%= search %>"/>
+							<% } %>
 						</form>
 						<form id="delete-<%= todo.id %>" action="<%= todo.url %>/delete" method="post">
 							<% if (filter) { %>
 							<input type="hidden" name="filter" value="<%= filter %>"/>
 							<% } %>
+							<% if (search) { %>
+							<input type="hidden" name="q" value="<%= search %>"/>
+							<% } %>
+						</form>
+						<form id="priority-<%= todo.id %>" action="<%= todo.url %>/priority" method="post">
+							<% if (filter) { %>
+							<input type="hidden" name="filter" value="<%= filter %>"/>
+							<% } %>
+							<% if (search) { %>
+							<input type="hidden" name="q" value="<%= search %>"/>
+							<% } %>
 						</form>
 					</li>
 					<% }); %>
+					<% if (search && todos.length == 0) { %>
+					<li class="no-results">No todos match “<%= search %>”</li>
+					<% } %>
 				</ul>
 			</section>
 			<% } %>
@@ -64,13 +96,13 @@
 				<span class="todo-count"><strong><%= activeCount %></strong> <%= pluralize('item', activeCount) %> left</span>
 				<ul class="filters">
 					<li>
-						<a <%- !filter ? 'class="selected"' : '' %> href="/">All</a>
+						<a <%- !filter ? 'class="selected"' : '' %> href="/<%= searchQuery %>">All</a>
 					</li>
 					<li>
-						<a <%- filter == 'active' ? 'class="selected"' : '' %> href="/active">Active</a>
+						<a <%- filter == 'active' ? 'class="selected"' : '' %> href="/active<%= searchQuery %>">Active</a>
 					</li>
 					<li>
-						<a <%- filter == 'completed' ? 'class="selected"' : '' %> href="/completed">Completed</a>
+						<a <%- filter == 'completed' ? 'class="selected"' : '' %> href="/completed<%= searchQuery %>">Completed</a>
 					</li>
 				</ul>
 				<% if (completedCount > 0) { %>
@@ -79,11 +111,47 @@
 					<% if (filter) { %>
 					<input type="hidden" name="filter" value="<%= filter %>"/>
 					<% } %>
+					<% if (search) { %>
+					<input type="hidden" name="q" value="<%= search %>"/>
+					<% } %>
 				</form>
 				<% } %>
 			</footer>
 			<% } %>
 		</section>
+		<% if (undo) { %>
+		<div class="undo" id="undo">
+			<span class="undo-text">Se borró «<%= undo.title %>»</span>
+			<form action="<%= undo.url %>" method="post">
+				<% if (filter) { %>
+				<input type="hidden" name="filter" value="<%= filter %>"/>
+				<% } %>
+				<% if (search) { %>
+				<input type="hidden" name="q" value="<%= search %>"/>
+				<% } %>
+				<button class="undo-button">Deshacer</button>
+			</form>
+			<span class="undo-countdown" id="undo-countdown"><%= undo.secondsLeft %></span>
+		</div>
+		<script>
+			(function() {
+				var secondsLeft = <%= undo.secondsLeft %>;
+				var countdown = document.getElementById('undo-countdown');
+				var banner = document.getElementById('undo');
+
+				var tick = setInterval(function() {
+					secondsLeft = secondsLeft - 1;
+					if (secondsLeft > 0) {
+						countdown.textContent = secondsLeft;
+						return;
+					}
+					// Venció el plazo: el servidor ya no aceptará el «Deshacer».
+					clearInterval(tick);
+					banner.className = banner.className + ' hidden';
+				}, 1000);
+			})();
+		</script>
+		<% } %>
 		<footer class="info">
 			<p>Double-click to edit a todo</p>
 			<p>Created by <a href="https://www.jaredhanson.me">Jared Hanson</a></p>
